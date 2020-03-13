@@ -199,8 +199,12 @@ func (b *BookRepo) Delete(ctx context.Context, id int64) (bool, error) {
  * @param  {[type]} g [description]
  * @return {[type]}   [description]
  */
-func (b *BookRepo) GetAll(ctx context.Context, limit int64, offset int64) ([]*models.Books, error) {
-	rows, err := b.db.Query(`SELECT b.*, p.name as publication_name FROM books b inner join publications as p ON p.id = b.publisher_id LIMIT  ?,?`, offset, limit)
+func (b *BookRepo) GetAll(ctx context.Context, limit int64, offset int64, order ...string) ([]*models.Books, error) {
+	var orderSqlStr string
+	if order!=nil && len(order) == 2 {
+		orderSqlStr = "ORDER BY "+order[0]+ " "+order[1]
+	}
+	rows, err := b.db.Query(`SELECT b.*, p.name as publication_name FROM books b inner join publications as p ON p.id = b.publisher_id `+orderSqlStr+` LIMIT  ?,?`, offset, limit)
 	if err != nil {
 		return nil, err
 	}
